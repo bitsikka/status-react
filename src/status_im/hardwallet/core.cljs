@@ -12,7 +12,8 @@
             [status-im.utils.datetime :as utils.datetime]
             [status-im.data-store.accounts :as accounts-store]
             [clojure.string :as string]
-            [status-im.accounts.login.core :as accounts.login]))
+            [status-im.accounts.login.core :as accounts.login]
+            [status-im.accounts.recover.core :as accounts.recover]))
 
 (def default-pin "000000")
 
@@ -67,7 +68,8 @@
 (fx/defn show-keycard-has-account-alert
   [{:keys [db] :as cofx}]
   (fx/merge cofx
-            {:utils/show-confirmation {:title               nil
+            {:db                      (assoc-in db [:hardwallet :setup-step] nil)
+             :utils/show-confirmation {:title               nil
                                        :content             (i18n/label :t/keycard-has-account-on-it)
                                        :cancel-button-text  ""
                                        :confirm-button-text :t/okay}}
@@ -148,10 +150,26 @@
       (unauthorized-operation cofx))))
 
 (fx/defn navigate-to-authentication-method
-  [cofx]
+  [{:keys [db] :as cofx}]
   (if (hardwallet-supported? cofx)
-    (navigation/navigate-to-cofx cofx :hardwallet-authentication-method nil)
+    (fx/merge cofx
+              {:db (assoc-in db [:hardwallet :flow] :create)}
+              (navigation/navigate-to-cofx :hardwallet-authentication-method nil))
     (accounts.create/navigate-to-create-account-screen cofx)))
+
+(fx/defn navigate-to-recover-method
+  [{:keys [db] :as cofx}]
+  (if (hardwallet-supported? cofx)
+    (fx/merge cofx
+              {:db (assoc-in db [:hardwallet :flow] :import)}
+              (navigation/navigate-to-cofx :hardwallet-authentication-method nil))
+    (accounts.recover/navigate-to-recover-account-screen cofx)))
+
+(fx/defn password-option-pressed
+  [{:keys [db] :as cofx}]
+  (if (= (get-in db [:hardwallet :flow]) :create)
+    (accounts.create/navigate-to-create-account-screen cofx)
+    (accounts.recover/navigate-to-recover-account-screen cofx)))
 
 (defn settings-screen-did-load
   [{:keys [db]}]
@@ -175,6 +193,12 @@
   {:db (assoc-in db [:hardwallet :card-read-in-progress?] false)})
 
 (defn accounts-screen-did-load
+  [{:keys [db]}]
+  {:db (-> db
+           (assoc-in [:hardwallet :setup-step] nil)
+           (dissoc :accounts/login))})
+
+(defn authentication-method-screen-did-load
   [{:keys [db]}]
   {:db (assoc-in db [:hardwallet :setup-step] nil)})
 
@@ -702,7 +726,9 @@
 
       auto-login?
       (fx/merge cofx
-                {:db (assoc db :accounts/login (select-keys account [:address :name :photo-path]))}
+                {:db (-> db
+                         (assoc :accounts/login (select-keys account [:address :name :photo-path]))
+                         (assoc-in [:hardwallet :pin :enter-step] :login))}
                 (navigation/navigate-to-cofx :enter-pin nil))
 
       :else
@@ -904,6 +930,21 @@
         (recovery-phrase-next-word db)
         (show-recover-confirmation))
       {:db (assoc-in db [:hardwallet :recovery-phrase :confirm-error] (i18n/label :t/wrong-word))})))
+
+(fx/defn card-ready-next-button-pressed
+  [{:keys [db] :as cofx}]
+  (if (= (get-in db [:hardwallet :flow]) :create)
+    (load-generating-mnemonic-screen cofx)
+    {:db (assoc-in db [:hardwallet :setup-step] :recovery-phrase)}))
+
+(fx/defn recovery-phrase-next-button-pressed
+  [{:keys [db] :as cofx}]
+  (if (= (get-in db [:hardwallet :flow]) :create)
+    (recovery-phrase-start-confirmation cofx)
+    (let [mnemonic (get-in db [:accounts/recover :passphrase])]
+      (fx/merge cofx
+                {:db (assoc-in db [:hardwallet :secrets :mnemonic] mnemonic)}
+                (load-loading-keys-screen)))))
 
 (fx/defn generate-and-load-key
   [{:keys [db] :as cofx}]

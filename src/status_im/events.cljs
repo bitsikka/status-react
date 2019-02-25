@@ -225,7 +225,7 @@
 (handlers/register-handler-fx
  :accounts.recover.ui/recover-account-button-pressed
  (fn [cofx _]
-   (accounts.recover/navigate-to-recover-account-screen cofx)))
+   (hardwallet/navigate-to-recover-method cofx)))
 
 (handlers/register-handler-fx
  :accounts.recover.ui/passphrase-input-changed
@@ -1069,7 +1069,7 @@
 (handlers/register-handler-fx
  :hardwallet.ui/password-option-pressed
  (fn [cofx _]
-   (accounts.create/navigate-to-create-account-screen cofx)))
+   (hardwallet/password-option-pressed cofx)))
 
 (handlers/register-handler-fx
  :hardwallet.ui/go-to-settings-button-pressed
@@ -1104,7 +1104,7 @@
 (handlers/register-handler-fx
  :hardwallet.ui/recovery-phrase-next-button-pressed
  (fn [cofx _]
-   (hardwallet/recovery-phrase-start-confirmation cofx)))
+   (hardwallet/recovery-phrase-next-button-pressed cofx)))
 
 (handlers/register-handler-fx
  :hardwallet.ui/recovery-phrase-confirm-word-next-button-pressed
@@ -1189,7 +1189,7 @@
 (handlers/register-handler-fx
  :hardwallet.ui/card-ready-next-button-pressed
  (fn [cofx _]
-   (hardwallet/load-generating-mnemonic-screen cofx)))
+   (hardwallet/card-ready-next-button-pressed cofx)))
 
 (handlers/register-handler-fx
  :hardwallet/generate-mnemonic
