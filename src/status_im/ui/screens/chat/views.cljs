@@ -12,6 +12,7 @@
             [status-im.ui.components.icons.vector-icons :as vector-icons]
             [status-im.ui.components.list-selection :as list-selection]
             [status-im.ui.components.list.views :as list]
+            [status-im.utils.universal-links.core :as universal-links]
             [status-im.ui.components.react :as react]
             [status-im.ui.components.status-bar.view :as status-bar]
             [status-im.ui.components.toolbar.actions :as toolbar.actions]
@@ -109,9 +110,48 @@
 
 (defn empty-chat-container
   []
-  [react/view style/empty-chat-container
-   [react/text {:style style/empty-chat-text}
-    (i18n/label :t/empty-chat-description)]])
+  (let [{:keys [color chat-id chat-name]}
+        @(re-frame/subscribe [:chats/current-chat])
+
+        link
+        (universal-links/generate-link :public-chat :external chat-id)
+
+        message
+        (i18n/label :t/share-public-chat-text {:link link})
+
+        public-chat-name-style
+        {:style {:font-size     24
+                 :font-weight   :bold
+                 :line-height   28
+                 :margin-bottom 10
+                 :color         colors/black}}
+
+        public-chat-icon-style
+        {:margin-bottom    25
+         :width            130
+         :height           130
+         :align-items      :center
+         :justify-content  :center
+         :border-radius    65
+         :background-color color}
+
+        public-chat-icon-text-style
+        {:style {:color       colors/white
+                 :font-size   56
+                 :font-weight :bold
+                 :opacity     0.8
+                 :line-height 72}}]
+
+    [react/view style/empty-chat-container
+     [react/view public-chat-icon-style
+      [react/text public-chat-icon-text-style
+       (clojure.string/capitalize (first chat-id))]]
+     [react/text public-chat-name-style chat-name]
+     [react/text {:style style/empty-chat-text}
+      (i18n/label :t/empty-chat-description)
+      [react/text {:style    {:color colors/blue}
+                   :on-press #(list-selection/open-share {:message message})}
+       (i18n/label :t/empty-chat-description-share-this)]]]))
 
 (defn empty-chat-container-one-to-one
   [contact-name]
