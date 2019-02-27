@@ -200,7 +200,7 @@ function compile() {
           -DDESKTOP_FONTS="$DESKTOP_FONTS" \
           -DJS_BUNDLE_PATH="$JS_BUNDLE_PATH" \
           $CMAKE_EXTRA_FLAGS || exit 1
-    make -S -j5 || exit 1
+    make -S -j1 || exit 1
   popd
 }
 
