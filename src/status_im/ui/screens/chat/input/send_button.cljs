@@ -9,7 +9,7 @@
 
 (defn send-button-view-on-update [{:keys [spin-value command-completion]}]
   (fn [_]
-    (let [to-spin-value (if (#{:complete :no-command} command-completion) 1 0)]
+    (let [to-spin-value (if (#{:complete :no-command} command-completion) 0 1)]
       (animation/start
        (animation/timing spin-value {:toValue  to-spin-value
                                      :duration 300})))))
@@ -26,7 +26,7 @@
             {:keys [input-text seq-arg-input-text]} [:chats/current-chat]
             disconnected?                           [:disconnected?]
             login-processing?                       [:get-in [:accounts/login :processing]]
-            spin-value                              (animation/create-value 1)]
+            spin-value                              (animation/create-value 0)]
     {:component-did-update (send-button-view-on-update {:spin-value         spin-value
                                                         :command-completion command-completion})}
     (when (and (sendable? input-text disconnected? login-processing?)
@@ -34,9 +34,7 @@
                    (#{:complete :less-than-needed} command-completion)))
       [react/touchable-highlight {:on-press #(re-frame/dispatch [:chat.ui/send-current-message])}
        (let [spin (.interpolate spin-value (clj->js {:inputRange  [0 1]
-                                                     :outputRange ["0deg" "90deg"]}))]
-         [react/animated-view
-          {:style               (style/send-message-container spin)
-           :accessibility-label :send-message-button}
-          [vi/icon :main-icons/arrow-up {:container-style style/send-message-icon
-                                         :color           :white}]])])))
+                                                     :outputRange ["0deg" "-90deg"]}))]
+         [vi/icon :main-icons/arrow-right {:container-style (style/send-message-container spin)
+                                           :accessibility-label :send-message-button
+                                           :color           :white}])])))
