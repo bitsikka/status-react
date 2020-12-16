@@ -62,8 +62,8 @@
                 keycard-pairing]}
         @(re-frame/subscribe [:multiaccount])
         active-contacts-count @(re-frame/subscribe [:contacts/active-count])
-        chain @(re-frame/subscribe [:chain-keyword])
-        registrar (stateofus/get-cached-registrar chain)]
+        chain                 @(re-frame/subscribe [:chain-keyword])
+        registrar             (stateofus/get-cached-registrar chain)]
     [:<>
      [quo/list-item
       (cond-> {:title                (or (when registrar preferred-name)
@@ -77,6 +77,24 @@
                                        (if preferred-name 1 2)
                                        1)
                :accessibility-label  :ens-button
+               :container-margin-top 8
+               :disabled             (not registrar)
+               :chevron              true
+               :icon                 :main-icons/username}
+        registrar
+        (assoc :on-press #(re-frame/dispatch [:navigate-to :ens-main registrar])))]
+     [quo/list-item
+      (cond-> {:title                (or (when registrar preferred-name)
+                                         (i18n/label :t/brightid))
+               :subtitle             (if registrar
+                                       (if preferred-name
+                                         (i18n/label :t/ens-your-your-name)
+                                         (i18n/label :t/brightid-linking-details))
+                                       (i18n/label :t/ens-network-restriction))
+               :subtitle-max-lines   (if registrar
+                                       (if preferred-name 1 2)
+                                       1)
+               :accessibility-label  :brightid-button
                :container-margin-top 8
                :disabled             (not registrar)
                :chevron              true
