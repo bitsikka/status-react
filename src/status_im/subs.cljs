@@ -183,6 +183,9 @@
 (reg-root-key-sub :ens/registrations :ens/registrations)
 (reg-root-key-sub :ens/names :ens/names)
 
+;;brightid
+(reg-root-key-sub :brightid/linking :brightid/linking)
+
 ;;signing
 (reg-root-key-sub :signing/sign :signing/sign)
 (reg-root-key-sub :signing/tx :signing/tx)
@@ -2205,24 +2208,26 @@
               :expiration-date expiration-date)))))
 
 (re-frame/reg-sub
- :ens.main/screen
- :<- [:multiaccount/usernames]
- :<- [:multiaccount]
- :<- [:ens/preferred-name]
- :<- [:ens/registrations]
- (fn [[names multiaccount preferred-name registrations]]
-   {:names             names
-    :multiaccount      multiaccount
-    :preferred-name    preferred-name
-    :registrations registrations}))
+  :ens.main/screen
+  :<- [:multiaccount/usernames]
+  :<- [:multiaccount]
+  :<- [:ens/preferred-name]
+  :<- [:ens/registrations]
+  (fn [[names multiaccount preferred-name registrations]]
+    {:names          names
+     :multiaccount   multiaccount
+     :preferred-name preferred-name
+     :registrations  registrations}))
+
+;;BRIGHTID==================================================================================================================
 
 ;;SIGNING =============================================================================================================
 
 (re-frame/reg-sub
- :signing/fee
- :<- [:signing/tx]
- (fn [{:keys [gas gasPrice]}]
-   (signing.gas/calculate-max-fee gas gasPrice)))
+  :signing/fee
+  :<- [:signing/tx]
+  (fn [{:keys [gas gasPrice]}]
+    (signing.gas/calculate-max-fee gas gasPrice)))
 
 (re-frame/reg-sub
  :signing/phrase
