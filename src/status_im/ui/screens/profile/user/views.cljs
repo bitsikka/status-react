@@ -84,23 +84,15 @@
         registrar
         (assoc :on-press #(re-frame/dispatch [:navigate-to :ens-main registrar])))]
      [quo/list-item
-      (cond-> {:title                (or (when registrar preferred-name)
-                                         (i18n/label :t/brightid))
-               :subtitle             (if registrar
-                                       (if preferred-name
-                                         (i18n/label :t/ens-your-your-name)
-                                         (i18n/label :t/brightid-linking-details))
-                                       (i18n/label :t/ens-network-restriction))
-               :subtitle-max-lines   (if registrar
-                                       (if preferred-name 1 2)
-                                       1)
-               :accessibility-label  :brightid-button
-               :container-margin-top 8
-               :disabled             (not registrar)
-               :chevron              true
-               :icon                 :main-icons/username}
-        registrar
-        (assoc :on-press #(re-frame/dispatch [:navigate-to :ens-main registrar])))]
+      {:title                (i18n/label :t/brightid)
+       :subtitle             (i18n/label :t/brightid-linking-details)
+       :subtitle-max-lines   2
+       :accessibility-label  :brightid-button
+       :container-margin-top 8
+       :disabled             false
+       :chevron              true
+       :icon                 :main-icons/username
+       :on-press             #(re-frame/dispatch [:navigate-to :brightid-main])}]
      [quo/list-item
       {:title               (i18n/label :t/contacts)
        :icon                :main-icons/in-contacts

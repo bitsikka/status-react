@@ -1,6 +1,7 @@
 (ns status-im.ui.screens.routing.profile-stack
   (:require [status-im.ui.screens.profile.user.views :as profile.user]
             [status-im.ui.screens.ens.views :as ens]
+            [status-im.ui.screens.brightid.views :as brightid]
             [status-im.ui.screens.contacts-list.views :as contacts-list]
             [status-im.ui.screens.bootnodes-settings.edit-bootnode.views
              :as
@@ -53,6 +54,8 @@
      :component contacts-list/contacts-list}
     {:name      :ens-main
      :component ens/main}
+    {:name      :brightid-main
+     :component brightid/main}
     {:name      :ens-search
      :component ens/search}
     {:name      :ens-checkout
