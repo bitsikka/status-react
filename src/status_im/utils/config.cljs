@@ -70,14 +70,16 @@
 (def verify-ens-contract-address (get-config :VERIFY_ENS_CONTRACT_ADDRESS ((ethereum/chain-id->chain-keyword verify-ens-chain-id) ens/ens-registries)))
 
 (def default-multiaccount
-  {:preview-privacy?      blank-preview?
-   :wallet/visible-tokens {:mainnet #{:SNT}}
-   :currency :usd
-   :appearance 0
-   :log-level log-level
+  {:preview-privacy?                   blank-preview?
+   :brightid-link-status               {}
+   :brightid-link-error-status         {}
+   :wallet/visible-tokens              {:mainnet #{:SNT}}
+   :currency                           :usd
+   :appearance                         0
+   :log-level                          log-level
    :webview-allow-permission-requests? false
-   :link-previews-enabled-sites #{}
-   :link-preview-request-enabled true})
+   :link-previews-enabled-sites        #{}
+   :link-preview-request-enabled       true})
 
 (defn default-visible-tokens [chain]
   (get-in default-multiaccount [:wallet/visible-tokens chain]))

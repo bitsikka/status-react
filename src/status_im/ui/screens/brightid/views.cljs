@@ -1,7 +1,8 @@
 (ns status-im.ui.screens.brightid.views
   (:require [re-frame.core :as re-frame]
             [reagent.core :as reagent]
-            [status-im.utils.brightid :as brightid]
+            [status-im.utils.brightid :as utils.brightid]
+            [status-im.brightid.core :as brightid]
             [status-im.i18n :as i18n]
             [status-im.react-native.resources :as resources]
             [status-im.ui.components.colors :as colors]
@@ -16,7 +17,7 @@
 (views/defview link-brightid-to-chat-key []
   (views/letsubs [{:keys [address]} [:popover/popover]
                   width (reagent/atom nil)]
-                 (let [deep-link (brightid/generate-deep-link address)]
+                 (let [deep-link (utils.brightid/generate-deep-link address)]
                    [react/view {:on-layout
                                 #(reset! width
                                          (-> ^js % .-nativeEvent .-layout .-width))}
@@ -35,11 +36,12 @@
 
 (defn- welcome []
   (let [address  (:public-key @(re-frame/subscribe [:multiaccount]))
-        popover  @(re-frame/subscribe [:popover/popover])
-        on-scaan #(re-frame/dispatch [:show-popover
-                                      {:view    :link-brightid-to-chat-key
-                                       :address address}])]
-    (println popover)
+        on-scaan (fn []
+                   (re-frame/dispatch
+                     [:show-popover
+                      {:view    :link-brightid-to-chat-key
+                       :address address}])
+                   (debounce/debounce-and-dispatch [::brightid/proceed-to-brightid-pressed] 10000))]
     [react/view {:style {:flex 1}}
      [react/scroll-view {:content-container-style {:align-items :center}}
       [react/image {:source (resources/get-theme-image :ens-header)
@@ -53,8 +55,8 @@
                    :after    :main-icon/next
                    :on-press (fn []
                                (.openURL ^js react/linking
-                                         (brightid/generate-deep-link address))
-                               (debounce/dispatch-and-chill [::brightid/proceed-to-brightid-pressed] 5000))}
+                                         (utils.brightid/generate-deep-link address))
+                               (debounce/debounce-and-dispatch [::brightid/proceed-to-brightid-pressed] 10000))}
        (i18n/label :t/brightid-proceed-to-app)]
       [react/text {:style {:margin-top 8 :margin-bottom 8 :color colors/gray :font-size 15 :margin-horizontal 16 :text-align :center}}
        (i18n/label :t/or)]

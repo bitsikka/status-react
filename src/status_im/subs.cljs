@@ -183,9 +183,6 @@
 (reg-root-key-sub :ens/registrations :ens/registrations)
 (reg-root-key-sub :ens/names :ens/names)
 
-;;brightid
-(reg-root-key-sub :brightid/linking :brightid/linking)
-
 ;;signing
 (reg-root-key-sub :signing/sign :signing/sign)
 (reg-root-key-sub :signing/tx :signing/tx)

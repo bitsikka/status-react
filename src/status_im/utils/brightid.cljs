@@ -5,6 +5,12 @@
 (def app-url "https://app.brightid.org")
 (def context "Status")
 
+(defn verify-context-id
+  [context-id on-success on-error param]
+  (let [endpoint (str app-url "/node/v5/verifications/" context "/" context-id)]
+    (http/get endpoint on-success on-error param)))
+
+
 (defn generate-deep-link
   ([context-id]
    (generate-deep-link context-id default-node-url))
@@ -14,11 +20,6 @@
    (if qr?
      (str "brightid://link-verification/" node-url "/" context "/" context-id)
      (str app-url "/link-verification/" node-url "/" context "/" context-id))))
-
-(defn verify-context-id
-  [context-id on-success on-error param]
-  (let [endpoint (str app-url "/node/v5/verifications/" context "/" context-id)]
-    (http/get endpoint on-success on-error param)))
 
 (comment
   (generate-deep-link "0xC0DE4C0FFEE")

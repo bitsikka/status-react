@@ -1,0 +1,59 @@
+status_im/ethereum/json_rpc.cljs:(def json-rpc-api
+status_im/ethereum/json_rpc.cljs:  (if-let [method-options (json-rpc-api method)]
+status_im/data_store/chats.cljs:(defn rpc->type [{:keys [chatType name] :as chat}]
+status_im/data_store/chats.cljs:      rpc->type
+status_im/data_store/settings.cljs:(defn rpc->networks [networks]
+status_im/data_store/settings.cljs:(defn rpc->visible-tokens [visible-tokens]
+status_im/data_store/settings.cljs:(defn rpc->pinned-mailservers [pinned-mailservers]
+status_im/data_store/settings.cljs:(defn rpc->custom-bootnodes [custom-bootnodes]
+status_im/data_store/settings.cljs:(defn rpc->stickers-packs [stickers-packs]
+status_im/data_store/settings.cljs:(defn rpc->settings [settings]
+status_im/data_store/settings.cljs:      (update :networks/networks rpc->networks)
+status_im/data_store/settings.cljs:      (update :wallet/visible-tokens rpc->visible-tokens)
+status_im/data_store/settings.cljs:      (update :pinned-mailservers rpc->pinned-mailservers)
+status_im/data_store/settings.cljs:      (update :stickers/packs-installed rpc->stickers-packs)
+status_im/data_store/settings.cljs:      (update :custom-bootnodes rpc->custom-bootnodes)
+status_im/data_store/settings.cljs:      (update :custom-bootnodes-enabled? rpc->custom-bootnodes)
+status_im/wallet/core.cljs:(defn rpc->token [tokens]
+status_im/wallet/core.cljs:        all-tokens     (merge (rpc->token custom-tokens) default-tokens)]
+status_im/constants.cljs:(def ethereum-rpc-url "http://localhost:8545")
+status_im/subs.cljs:            :rpc-network? (get-in network [:config :UpstreamConfig :Enabled])))))
+status_im/protocol/core.cljs:                     (assoc :rpc-url constants/ethereum-rpc-url)
+status_im/network/core_test.cljs:(deftest valid-rpc-url-test
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? nil))))
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? ""))))
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? "something"))))
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? "http://something with space"))))
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? "https://"))))
+status_im/network/core_test.cljs:    (is (not (network.core/valid-rpc-url? "HTTP://valid.com"))))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "http://valid.com")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://valid.something.else")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://mainnet.infura.io:6523/v3/some-token")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://192.168.1.1")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://localhost")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://192.168.1.1:6523/z6GCTmjdP3FETEJmMBI4")))
+status_im/network/core_test.cljs:    (is (network.core/valid-rpc-url? "https://valid.something.else:65323"))))
+status_im/network/core.cljs:(defn valid-rpc-url? [url]
+status_im/network/core.cljs:   :error (not (valid-rpc-url? value))})
+status_im/network/core.cljs:                                       rpc-network-id      (when-let [res (:result (second responses))]
+status_im/network/core.cljs:                                            (= expected-network-id rpc-network-id))
+status_im/network/core.cljs:                                     (re-frame/dispatch [::connect-failure (if (not= expected-network-id rpc-network-id)
+status_im/utils/config.cljs:(def mainnet-rpc-url (str "https://mainnet.infura.io/v3/" INFURA_TOKEN))
+status_im/utils/config.cljs:(def testnet-rpc-url (str "https://ropsten.infura.io/v3/" INFURA_TOKEN))
+status_im/utils/config.cljs:(def rpc-networks-only? (enabled? (get-config :RPC_NETWORKS_ONLY "1")))
+status_im/utils/config.cljs:                              mainnet-rpc-url
+status_im/utils/config.cljs:                              testnet-rpc-url))
+status_im/utils/config.cljs:                      mainnet-rpc-url
+status_im/utils/config.cljs:                      testnet-rpc-url))
+status_im/utils/config.cljs:                                      :URL mainnet-rpc-url}}}])
+status_im/utils/config.cljs:                                      :URL testnet-rpc-url}}}
+status_im/network/ui/edit_network/views.cljs:            {:label          (i18n/label :t/rpc-url)
+status_im/network/ui/edit_network/views.cljs:             :placeholder    (i18n/label :t/specify-rpc-url)
+status_im/multiaccounts/login/core.cljs:(defn rpc->accounts [accounts]
+status_im/multiaccounts/login/core.cljs:                                        (rpc->accounts accounts))
+status_im/multiaccounts/login/core.cljs:        (data-store.settings/rpc->settings settings)
+status_im/i18n_test.cljs:    :rpc-url
+status_im/i18n_test.cljs:    :specify-rpc-url
+status_im/multiaccounts/create/core.cljs:                  :networks/networks (data-store.settings/rpc->networks config/default-networks))
+status_im/native_module/core.cljs:  [rpc-endpoint contract-address on-result]
+status_im/native_module/core.cljs:  (.getNodesFromContract ^js (status) rpc-endpoint contract-address on-result))
