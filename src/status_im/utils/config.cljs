@@ -71,8 +71,6 @@
 
 (def default-multiaccount
   {:preview-privacy?                   blank-preview?
-   :brightid-link-status               {}
-   :brightid-link-error-status         {}
    :wallet/visible-tokens              {:mainnet #{:SNT}}
    :currency                           :usd
    :appearance                         0

@@ -3,6 +3,7 @@
             [reagent.core :as reagent]
             [status-im.i18n :as i18n]
             [quo.core :as quo]
+            [status-im.brightid.core :as brightid]
             [status-im.ui.components.colors :as colors]
             [status-im.multiaccounts.core :as multiaccounts]
             [status-im.ui.components.common.common :as components.common]
@@ -59,8 +60,18 @@
 (defn content []
   (let [{:keys [preferred-name
                 mnemonic
-                keycard-pairing]}
+                keycard-pairing
+                brightid-link-status
+                brightid-link-error-status]}
         @(re-frame/subscribe [:multiaccount])
+        brightid-verified     (when brightid-link-status
+                                (-> (js->clj
+                                      brightid-link-status :keywordize-keys true)
+                                    :data))
+        brightid-error        (when brightid-link-error-status
+                                (:errorNum
+                                 (js->clj
+                                   brightid-link-error-status :keywordize-keys true)))
         active-contacts-count @(re-frame/subscribe [:contacts/active-count])
         chain                 @(re-frame/subscribe [:chain-keyword])
         registrar             (stateofus/get-cached-registrar chain)]
@@ -85,8 +96,28 @@
         (assoc :on-press #(re-frame/dispatch [:navigate-to :ens-main registrar])))]
      [quo/list-item
       {:title                (i18n/label :t/brightid)
-       :subtitle             (i18n/label :t/brightid-linking-details)
-       :subtitle-max-lines   2
+       :subtitle             (if brightid-verified
+                               (if (:unique brightid-verified)
+                                 "Verified!"
+                                 "You are verified by brightID, but in Status you have another account you linked recently...")
+                               (if brightid-error
+                                 (condp = brightid-error
+                                   2 (i18n/label :t/brightid-linking-details)
+                                   3 "BrightID is linked with your Chat key, but you are yet to be verified as a unique individual by brightID..."
+                                   4 "BrightID is linked with yooour Chat key, but you are yet to be sponsored by an app that uses brightID... "
+                                   (i18n/label :t/brightid-linking-details))
+                                 (i18n/label :t/brightid-linking-details)))
+       :subtitle-max-lines   (if brightid-verified
+                               (if (:unique brightid-verified)
+                                 1
+                                 3)
+                               (if brightid-error
+                                 (condp = brightid-error
+                                   2 2
+                                   3 3
+                                   4 3
+                                   (identity 2))
+                                 2))
        :accessibility-label  :brightid-button
        :container-margin-top 8
        :disabled             false
@@ -183,20 +214,21 @@
                                                 :address  public-key
                                                 :ens-name preferred-name}])
           has-picture     @(re-frame/subscribe [:profile/has-picture])]
-      [react/view {:flex 1}
+      [react/view {:on-layout (fn [] (re-frame/dispatch [::brightid/proceed-to-brightid-pressed]))
+                   :style     {:flex 1}}
        [quo/animated-header
         {:right-accessories [{:accessibility-label :share-header-button
                               :icon                :main-icons/share
                               :on-press            on-share}]
          :use-insets        true
          :extended-header   (profile-header/extended-header
-                             {:on-press  on-share
-                              :on-edit   #(re-frame/dispatch [:bottom-sheet/show-sheet
-                                                              {:content (edit/bottom-sheet has-picture)}])
-                              :title     (multiaccounts/displayed-name account)
-                              :photo     (multiaccounts/displayed-photo account)
-                              :monospace (not ens-verified)
-                              :subtitle  (if (and ens-verified public-key)
-                                           (gfy/generate-gfy public-key)
-                                           (utils/get-shortened-address public-key))})}
+                              {:on-press  on-share
+                               :on-edit   #(re-frame/dispatch [:bottom-sheet/show-sheet
+                                                               {:content (edit/bottom-sheet has-picture)}])
+                               :title     (multiaccounts/displayed-name account)
+                               :photo     (multiaccounts/displayed-photo account)
+                               :monospace (not ens-verified)
+                               :subtitle  (if (and ens-verified public-key)
+                                            (gfy/generate-gfy public-key)
+                                            (utils/get-shortened-address public-key))})}
         [content]]])))

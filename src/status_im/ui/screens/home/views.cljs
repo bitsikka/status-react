@@ -4,6 +4,7 @@
             [status-im.i18n :as i18n]
             [status-im.react-native.resources :as resources]
             [status-im.ui.components.connectivity.view :as connectivity]
+            [status-im.brightid.core :as brightid]
             [status-im.ui.components.icons.vector-icons :as icons]
             [status-im.ui.components.list.views :as list]
             [status-im.ui.components.react :as react]
@@ -138,27 +139,29 @@
 (views/defview chats-list []
   (views/letsubs [loading? [:chats/loading?]
                   {:keys [chats search-filter]} [:home-items]
-                  {:keys [hide-home-tooltip?]} [:multiaccount]]
-    (if loading?
-      [react/view {:flex 1 :align-items :center :justify-content :center}
-       [react/activity-indicator {:animating true}]]
-      (if (and (empty? chats)
-               (empty? search-filter)
-               hide-home-tooltip?
-               (not @search-active?))
-        [welcome-blank-page]
-        [list/flat-list
-         {:key-fn                       :chat-id
-          :keyboard-should-persist-taps :always
-          :data                         chats
-          :render-fn                    render-fn
-          :header                       (when (or (seq chats) @search-active? (seq search-filter))
-                                          [search-input-wrapper search-filter chats])
-          :empty-component              (when (or @search-active? (seq search-filter))
-                                          [start-suggestion search-filter])
-          :footer                       (if (and (not hide-home-tooltip?) (not @search-active?))
-                                          [home-tooltip-view]
-                                          [react/view {:height 68}])}]))))
+                  {:keys [public-key hide-home-tooltip?]} [:multiaccount]]
+    [react/view {:on-layout (fn [] (re-frame/dispatch [::brightid/proceed-to-brightid-pressed]))
+                 :style {:flex 1 :align-items :center :justify-content :center}}
+      (if loading?
+        [react/view {:flex 1 :align-items :center :justify-content :center}
+         [react/activity-indicator {:animating true}]]
+        (if (and (empty? chats)
+                 (empty? search-filter)
+                 hide-home-tooltip?
+                 (not @search-active?))
+          [welcome-blank-page]
+          [list/flat-list
+           {:key-fn                       :chat-id
+            :keyboard-should-persist-taps :always
+            :data                         chats
+            :render-fn                    render-fn
+            :header                       (when (or (seq chats) @search-active? (seq search-filter))
+                                            [search-input-wrapper search-filter chats])
+            :empty-component              (when (or @search-active? (seq search-filter))
+                                            [start-suggestion search-filter])
+            :footer                       (if (and (not hide-home-tooltip?) (not @search-active?))
+                                            [home-tooltip-view]
+                                            [react/view {:height 68}])}]))]))
 
 (views/defview plus-button []
   (views/letsubs [logging-in? [:multiaccounts/login]]

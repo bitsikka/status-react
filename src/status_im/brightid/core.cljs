@@ -18,7 +18,7 @@
   [cofx response]
   (fx/merge cofx
             (multiaccounts.update/multiaccount-update
-              :bright-id-link-status (.parse js/JSON response)
+              :brightid-link-status (.parse js/JSON response)
               {})))
 
 (fx/defn on-update-brightid-fail
@@ -26,7 +26,7 @@
   [cofx err]
   (fx/merge cofx
             (multiaccounts.update/multiaccount-update
-              :bright-id-link-error-status (.parse js/JSON err)
+              :brightid-link-error-status (.parse js/JSON err)
               {})))
 
 (fx/defn brightid-verifications
